@@ -3,9 +3,9 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { unlink } from "fs";
 cloudinary.config({
-  cloud_name: "clouds-store",
-  api_key: "357675581138582",
-  api_secret: "3-40WPZO6Zogw2Lr8KnK6W7HlyA",
+  cloud_name: "",
+  api_key: "",
+  api_secret: "",
 });
 // disable next.js' default body parser
 export const config = {
