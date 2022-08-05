@@ -11,8 +11,7 @@ const schema = yup.object().shape({
     .array()
     .min(1, "Size is required")
     .test("check", "Size is wrong", (v) => {
-      console.log(v);
-      return ["S", "M", "L", "XL"].includes(...v);
+      return ["S", "M", "L", "XL"].includes(...v.map((size) => size.size1));
     }),
 });
 
@@ -29,7 +28,7 @@ export default function Home() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      size: ["s"],
+      size: [],
     },
     resolver: yupResolver(schema),
   });
@@ -80,7 +79,14 @@ export default function Home() {
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        console.log({ ...data, file: data.file.map((file) => file[0]) });
+        console.log({
+          ...data,
+          file: data.file.map((file) => file[0]),
+          stock: data.size.reduce((s, { size1, quantity }) => {
+            s[size1] = quantity;
+            return s;
+          }, {}),
+        });
         try {
           const res = await axios({
             method: "GET",
@@ -125,30 +131,6 @@ export default function Home() {
           ))}
         </div>
       </div>
-      {/* {pic_field.map(({ id }, index) => (
-        <Fragment key={id}>
-          <div>
-            <label>Image</label>
-
-            <div>
-              <button type="button" onClick={() => addSize("")}>
-                Add Image
-              </button>
-              <input
-                type="checkbox"
-                name="primary"
-                value={index}
-                checked={primaryPicture === index}
-                onChange={handleCheckPrimaryPicture}
-              />
-              <input type="file" {...register(`file[${index}]`)} />
-              <button type="button" onClick={() => rmSize(index)}>
-                Rm image
-              </button>
-            </div>
-          </div>
-        </Fragment>
-      ))} */}
       <div style={{ display: "flex" }}>
         <label>Size</label>
         <div>
@@ -157,7 +139,8 @@ export default function Home() {
           </button>
           {size_field.map(({ id }, index) => (
             <div key={id}>
-              <input {...register(`size[${index}]`)} />
+              <input {...register(`size[${index}].size1`)} />
+              <input {...register(`size[${index}].quantity`)} />
               <button type="button" onClick={() => rmSize(index)}>
                 Remove size
               </button>
