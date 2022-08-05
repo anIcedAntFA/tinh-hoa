@@ -7,11 +7,11 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 const schema = yup.object().shape({
-  size: yup
+  stock: yup
     .array()
     .min(1, "Size is required")
     .test("check", "Size is wrong", (v) => {
-      return ["S", "M", "L", "XL"].includes(...v.map((size) => size.size1));
+      return ["S", "M", "L", "XL"].includes(...v.map((stock) => stock.size));
     }),
 });
 
@@ -28,7 +28,7 @@ export default function Home() {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      size: [],
+      stock: [],
     },
     resolver: yupResolver(schema),
   });
@@ -38,7 +38,7 @@ export default function Home() {
     remove: rmSize,
   } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormContext)
-    name: "size", // unique name for your Field Array
+    name: "stock", // unique name for your Field Array
   });
   const {
     fields: pic_field,
@@ -82,22 +82,22 @@ export default function Home() {
         console.log({
           ...data,
           file: data.file.map((file) => file[0]),
-          stock: data.size.reduce((s, { size1, quantity }) => {
-            s[size1] = quantity;
+          stock: data.stock.reduce((s, { size, quantity }) => {
+            s[size] = quantity;
             return s;
           }, {}),
         });
         try {
-          const res = await axios({
-            method: "GET",
-            url: `http://localhost:3000/api/test?${qs.stringify({
-              category: "ring",
-              select: {
-                name: 1,
-                price: 1,
-              },
-            })}`,
-          });
+          // const res = await axios({
+          //   method: "GET",
+          //   url: `http://localhost:3000/api/test?${qs.stringify({
+          //     category: "ring",
+          //     select: {
+          //       name: 1,
+          //       price: 1,
+          //     },
+          //   })}`,
+          // });
         } catch (err) {
           console.log(err);
         }
@@ -137,10 +137,11 @@ export default function Home() {
           <button type="button" onClick={() => addSize("")}>
             Add size
           </button>
+
           {size_field.map(({ id }, index) => (
             <div key={id}>
-              <input {...register(`size[${index}].size1`)} />
-              <input {...register(`size[${index}].quantity`)} />
+              <input {...register(`stock[${index}].size`)} />
+              <input {...register(`stock[${index}].quantity`)} />
               <button type="button" onClick={() => rmSize(index)}>
                 Remove size
               </button>
