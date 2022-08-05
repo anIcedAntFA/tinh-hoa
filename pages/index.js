@@ -1,7 +1,20 @@
 import axios from "axios";
+import qs from "qs";
 import { Fragment, useEffect, useState } from "react";
 import { createProduct } from "../fetching/product";
 import { useFieldArray, useForm } from "react-hook-form";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+const schema = yup.object().shape({
+  size: yup
+    .array()
+    .min(1, "Size is required")
+    .test("check", "Size is wrong", (v) => {
+      console.log(v);
+      return ["S", "M", "L", "XL"].includes(...v);
+    }),
+});
 
 export default function Home() {
   const [picture, setPicture] = useState({});
@@ -9,10 +22,16 @@ export default function Home() {
   const handleUpload1 = (event, index) => {
     setPicture((prev) => ({ ...prev, [index]: event.target.files[0] }));
   };
-  const { control, register, handleSubmit } = useForm({
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       size: ["s"],
     },
+    resolver: yupResolver(schema),
   });
   const {
     fields: size_field,
@@ -58,18 +77,31 @@ export default function Home() {
   const handleCheckPrimaryPicture = (event) => {
     setPrimaryPicture(+event.target.value);
   };
-
   return (
     <form
-      onSubmit={handleSubmit((data) =>
-        console.log({ ...data, file: data.file.map((file) => file[0]) })
-      )}
+      onSubmit={handleSubmit(async (data) => {
+        console.log({ ...data, file: data.file.map((file) => file[0]) });
+        try {
+          const res = await axios({
+            method: "GET",
+            url: `http://localhost:3000/api/test?${qs.stringify({
+              category: "ring",
+              select: {
+                name: 1,
+                price: 1,
+              },
+            })}`,
+          });
+        } catch (err) {
+          console.log(err);
+        }
+      })}
     >
       <div>
         <label>Name</label>
         <input {...register("name")} />
       </div>
-
+      <span>{errors?.size?.message}</span>
       <div style={{ display: "flex" }}>
         <label>Image</label>
         <div>
