@@ -81,6 +81,7 @@ export default function Home() {
         // });
 
         // [{url: "1", public_id: "1"}, file, {url: "3", public_id: "3"}]
+
         // isString lodash => false => filter [file] => upload => response => index => map => replace =>  call api
 
         try {
@@ -164,6 +165,36 @@ export default function Home() {
         </div>
       </div>
       <button>Upload</button>
+      <button
+        type="button"
+        onClick={async () => {
+          const res = await axios({
+            method: "POST",
+            url: `/api/create-rating`,
+            data: {
+              user_id: "62f23a340eba31bf91cbce14",
+              product_id: "62f23a340eba31bf91cbce12",
+              count: Math.ceil(Math.random() * 5),
+              comment: "San pham qua tot",
+            },
+          });
+          console.log(res.data);
+        }}
+      >
+        add rating
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          const res = await axios({
+            method: "GET",
+            url: `/api/ratings?product_id=62f23a340eba31bf91cbce12`,
+          });
+          console.log(res.data);
+        }}
+      >
+        get all with rating
+      </button>
     </form>
   );
 }

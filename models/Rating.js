@@ -12,7 +12,7 @@ const RatingSchema = new Schema(
   }
 );
 // _id > unique: true
-// khi comment => create rating
+// khi feedback => create rating
 
 // khi query => find Rating.find({product_id: id from details}) => get All
 
