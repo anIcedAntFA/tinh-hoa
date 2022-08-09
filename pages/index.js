@@ -7,12 +7,12 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 const schema = yup.object().shape({
-  stock: yup
-    .array()
-    .min(1, "Size is required")
-    .test("check", "Size is wrong", (v) => {
-      return ["S", "M", "L", "XL"].includes(...v.map((stock) => stock.size));
-    }),
+  // stock: yup
+  //   .array()
+  //   .min(1, "Size is required")
+  //   .test("check", "Size is wrong", (v) => {
+  //     return ["S", "M", "L", "XL"].includes(...v.map((stock) => stock.size));
+  //   }),
 });
 
 export default function Home() {
@@ -49,45 +49,59 @@ export default function Home() {
     name: "file", // unique name for your Field Array
   });
   const handleUpload = async () => {
-    const upload = await Promise.all(
-      Object.entries(picture).map(([_, picture]) => {
-        const formData = new FormData();
-        formData.append("picture", picture);
-        return axios({
-          method: "POST",
-          url: "http://localhost:3000/api/upload",
-          data: formData,
-        });
-      })
-    );
-    const product = await createProduct({
-      name: "Khoi",
-      price: 1,
-      images: upload
-        .map((item) => item.data)
-        .map((item, index) => ({
-          ...item,
-          type: index === primaryPicture ? "primary" : "secondary",
-        })),
-    });
-    console.log(product);
+    // const upload = await Promise.all(
+    //   Object.entries(picture).map(([_, picture]) => {
+    //     const formData = new FormData();
+    //     formData.append("picture", picture);
+    //     return axios({
+    //       method: "POST",
+    //       url: "http://localhost:3000/api/upload",
+    //       data: formData,
+    //     });
+    //   })
+    // );
   };
-
   const handleCheckPrimaryPicture = (event) => {
     setPrimaryPicture(+event.target.value);
   };
   return (
     <form
       onSubmit={handleSubmit(async (data) => {
-        console.log({
-          ...data,
-          file: data.file.map((file) => file[0]),
-          stock: data.stock.reduce((s, { size, quantity }) => {
-            s[size] = quantity;
-            return s;
-          }, {}),
-        });
+        const formData = new FormData();
+        data.file.forEach((file) => formData.append("file", file[0]));
+
+        // console.log({
+        //   ...data,
+        //   file: data.file.map((file) => file[0]),
+        //   stock: data.stock.reduce((s, { size, quantity }) => {
+        //     s[size] = quantity;
+        //     console.log(s);
+        //     return s;
+        //   }, {}),
+        // });
+
+        // [{url: "1", public_id: "1"}, file, {url: "3", public_id: "3"}]
+        // isString lodash => false => filter [file] => upload => response => index => map => replace =>  call api
+
         try {
+          //4 anh => update 1 anh => upload 1 anh
+          // khi upload => logic => only file
+          const upload = await axios({
+            method: "POST",
+            url: "http://localhost:3000/api/upload",
+            data: formData,
+          });
+          console.log(upload.data);
+
+          const product = await createProduct({
+            name: "Khoi",
+            price: 1,
+            images: upload.data.map((item, index) => ({
+              ...item,
+              type: index === primaryPicture ? "primary" : "secondary",
+            })),
+          });
+          console.log(product);
           // const res = await axios({
           //   method: "GET",
           //   url: `http://localhost:3000/api/test?${qs.stringify({

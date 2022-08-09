@@ -8,7 +8,12 @@ const ProductSchema = new Schema(
       {
         url: { type: String, required: true },
         public_id: { type: String, required: true },
-        type: { type: String, enum: ["primary", "secondary"], required: true },
+        type: {
+          type: String,
+          enum: ["primary", "secondary"],
+          default: "secondary",
+          required: true,
+        },
       },
     ],
   },
